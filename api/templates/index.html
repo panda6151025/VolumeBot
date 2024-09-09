@@ -1,44 +1,84 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>AI Rolex Watch Identifier</title>
-    <link rel="stylesheet" href="../static/styles.css" />
-  </head>
-  <body>
-    <!-- Header -->
-    <header>
-      <h1>AI Rolex Watch Identifier</h1>
-      <p>Authenticate your Rolex watch using AI-powered sound analysis</p>
-    </header>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Volume Bot Dashboard</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body { background-color: #f8f9fa; }
+        .locked { color: red; }
+        .unlocked { color: green; }
+    </style>
+</head>
+<body>
 
-    <!-- Instructions Section -->
-    <section id="instructions">
-      <h2>Instructions</h2>
-      <ol>
-        <li>Position your Rolex watch near the microphone.</li>
-        <li>Wind the watch crown for a few seconds.</li>
-        <li>
-          Click the 'Start Recording' button and continue winding for 5 seconds.
-        </li>
-      </ol>
-    </section>
+    <div class="container mt-5">
+        <h1>Volume Bot Dashboard</h1>
 
-    <!-- Recording Section -->
-    <section id="recording">
-      <button id="start-btn">Start Recording</button>
-      <div id="countdown"></div>
-      <div id="progress" class="hidden">Recording in progress...</div>
-    </section>
+        <!-- Display Bot Status -->
+        <div class="mt-4">
+            <h4>Status: 
+                <span id="status-indicator" class="{{ 'locked' if bot_status['is_locked'] else 'unlocked' }}">
+                    {{ 'Locked' if bot_status['is_locked'] else 'Unlocked' }}
+                </span>
+            </h4>
+            <h4>Fuel Level: {{ bot_status['fuel_level'] }}</h4>
+        </div>
 
-    <!-- Audio Playback Section -->
-    <div id="audio-controls">
-      <audio controls id="audio-player"></audio>
-      <button id="delete-btn">Delete</button>
-      <button id="send-btn">Send to Backend</button>
+        <!-- Unlock Bot Form -->
+        <div class="card mt-4">
+            <div class="card-body">
+                <h3>Unlock the Bot</h3>
+                <form id="unlock-form">
+                    <div class="form-group">
+                        <label for="chain-select">Select Chain:</label>
+                        <select id="chain-select" class="form-control" name="chain">
+                            <option value="solana">Solana</option>
+                            <option value="evm">EVM</option>
+                            <option value="tron">Tron</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="deposit-amount">Deposit Amount:</label>
+                        <input type="number" id="deposit-amount" class="form-control" name="deposit_amount" placeholder="Enter deposit amount">
+                    </div>
+                    <div class="form-group">
+                        <label for="duration">Select Duration:</label>
+                        <select id="duration" class="form-control" name="duration">
+                            <option value="1hr">1 Hour</option>
+                            <option value="2hr">2 Hours</option>
+                            <option value="24hr">24 Hours</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-block">Unlock Bot</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Display Messages -->
+        <div id="message" class="mt-4"></div>
     </div>
 
-    <script src="../static/script.js"></script>
-  </body>
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script>
+        $("#unlock-form").on("submit", function(event) {
+            event.preventDefault();
+
+            $.ajax({
+                url: "/unlock-bot",
+                method: "POST",
+                data: $(this).serialize(),
+                success: function(response) {
+                    if (response.status === "success") {
+                        $("#message").html('<div class="alert alert-success">' + response.message + '</div>');
+                        $("#status-indicator").text('Unlocked').removeClass('locked').addClass('unlocked');
+                    } else {
+                        $("#message").html('<div class="alert alert-danger">' + response.message + '</div>');
+                    }
+                }
+            });
+        });
+    </script>
+</body>
 </html>
