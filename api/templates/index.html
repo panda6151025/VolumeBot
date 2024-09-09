@@ -5,79 +5,141 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Volume Bot Dashboard</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <style>
-        body { background-color: #f8f9fa; }
-        .locked { color: red; }
-        .unlocked { color: green; }
+        body {
+            background-color: #f8f9fa;
+        }
+        .navbar {
+            margin-bottom: 30px;
+        }
+        .card {
+            border-radius: 10px;
+        }
+        .btn-primary {
+            background-color: #007bff;
+            border: none;
+        }
+        .btn-primary:hover {
+            background-color: #0056b3;
+        }
+        .progress {
+            height: 25px;
+        }
     </style>
 </head>
 <body>
 
-    <div class="container mt-5">
-        <h1>Volume Bot Dashboard</h1>
-
-        <!-- Display Bot Status -->
-        <div class="mt-4">
-            <h4>Status: 
-                <span id="status-indicator" class="{{ 'locked' if bot_status['is_locked'] else 'unlocked' }}">
-                    {{ 'Locked' if bot_status['is_locked'] else 'Unlocked' }}
-                </span>
-            </h4>
-            <h4>Fuel Level: {{ bot_status['fuel_level'] }}</h4>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <a class="navbar-brand" href="#">Volume Bot</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Dashboard</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Settings</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Help</a>
+                </li>
+            </ul>
         </div>
+    </nav>
 
-        <!-- Unlock Bot Form -->
-        <div class="card mt-4">
+    <div class="container">
+        <!-- Unlock Section -->
+        <div class="card mb-4">
             <div class="card-body">
-                <h3>Unlock the Bot</h3>
-                <form id="unlock-form">
-                    <div class="form-group">
-                        <label for="chain-select">Select Chain:</label>
-                        <select id="chain-select" class="form-control" name="chain">
-                            <option value="solana">Solana</option>
-                            <option value="evm">EVM</option>
-                            <option value="tron">Tron</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="deposit-amount">Deposit Amount:</label>
-                        <input type="number" id="deposit-amount" class="form-control" name="deposit_amount" placeholder="Enter deposit amount">
-                    </div>
-                    <div class="form-group">
-                        <label for="duration">Select Duration:</label>
-                        <select id="duration" class="form-control" name="duration">
-                            <option value="1hr">1 Hour</option>
-                            <option value="2hr">2 Hours</option>
-                            <option value="24hr">24 Hours</option>
-                        </select>
-                    </div>
-                    <button type="submit" class="btn btn-primary btn-block">Unlock Bot</button>
-                </form>
+                <h3 class="card-title">Unlock the Bot</h3>
+                <div class="form-group">
+                    <label for="chain-select"><i class="fas fa-network-wired"></i> Select Chain:</label>
+                    <select id="chain-select" class="form-control">
+                        <option value="solana">Solana</option>
+                        <option value="evm">EVM</option>
+                        <option value="tron">Tron</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="deposit-amount"><i class="fas fa-wallet"></i> Deposit Amount:</label>
+                    <input type="number" id="deposit-amount" class="form-control" placeholder="Enter deposit amount">
+                </div>
+                <button id="unlock-btn" class="btn btn-primary btn-block">Unlock Bot</button>
             </div>
         </div>
 
-        <!-- Display Messages -->
-        <div id="message" class="mt-4"></div>
+        <!-- Bot Controls Section -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <h3 class="card-title">Bot Controls</h3>
+                <div class="form-group">
+                    <label for="duration-select"><i class="fas fa-clock"></i> Select Duration:</label>
+                    <select id="duration-select" class="form-control">
+                        <option value="1hr">1 Hour</option>
+                        <option value="2hr">2 Hours</option>
+                        <option value="24hr">24 Hours</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-lock"></i> Status:</label>
+                    <div id="status-indicator" class="alert alert-secondary">Locked</div>
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-tachometer-alt"></i> Fuel Level:</label>
+                    <div class="progress">
+                        <div id="fuel-level" class="progress-bar bg-success" style="width: 0%">0%</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Settings Section -->
+        <div class="card">
+            <div class="card-body">
+                <h3 class="card-title">Bot Settings</h3>
+                <div class="form-group">
+                    <label><i class="fas fa-filter"></i> Pool Selection:</label>
+                    <div>
+                        <input type="checkbox" id="raydium"> Raydium
+                        <input type="checkbox" id="maestro"> Maestro
+                        <!-- More pools can be added here -->
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-shield-alt"></i> MEV Protection:</label>
+                    <input type="checkbox" id="mev-protection"> Enable
+                </div>
+                <div class="form-group">
+                    <label for="wallet-distribution"><i class="fas fa-percentage"></i> Wallet Distribution:</label>
+                    <input type="text" id="wallet-distribution" class="form-control" placeholder="e.g., 40%, 30%, 30%">
+                </div>
+            </div>
+        </div>
     </div>
 
+    <!-- Include Bootstrap JS and dependencies -->
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script>
-        $("#unlock-form").on("submit", function(event) {
-            event.preventDefault();
+        // JavaScript logic to handle UI interactions and API calls
+        $("#unlock-btn").click(function() {
+            // Handle unlock logic and backend interaction
+            const chain = $('#chain-select').val();
+            const depositAmount = $('#deposit-amount').val();
 
-            $.ajax({
-                url: "/unlock-bot",
-                method: "POST",
-                data: $(this).serialize(),
-                success: function(response) {
-                    if (response.status === "success") {
-                        $("#message").html('<div class="alert alert-success">' + response.message + '</div>');
-                        $("#status-indicator").text('Unlocked').removeClass('locked').addClass('unlocked');
-                    } else {
-                        $("#message").html('<div class="alert alert-danger">' + response.message + '</div>');
-                    }
-                }
-            });
+            if(depositAmount && chain) {
+                // Mock action: Unlocking bot
+                $('#status-indicator').removeClass('alert-secondary').addClass('alert-success').text('Unlocked');
+                $('#fuel-level').css('width', '100%').text('100%');
+                alert('Bot Unlocked for ' + chain + ' with ' + depositAmount + ' deposit.');
+            } else {
+                alert('Please enter a deposit amount and select a chain.');
+            }
         });
     </script>
 </body>
